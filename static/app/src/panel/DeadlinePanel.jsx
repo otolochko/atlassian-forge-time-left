@@ -11,15 +11,15 @@ import { useTicker } from './useTicker';
 const DAY = 24 * 3600e3;
 const DATE_ONLY = /^\d{4}-\d{2}-\d{2}$/;
 
-// `tone` colors the countdown and progress bar; `appearance` is the Atlaskit Lozenge color
+// `title` names the number above it; `tone` colors the countdown and progress bar; `appearance` is the Atlaskit Lozenge color
 const BADGES = {
-  'on-track': { label: 'On track', tone: 'success', appearance: 'success' },
-  warning: { label: 'Due soon', tone: 'warning', appearance: 'moved' },
-  paused: { label: 'Paused', tone: 'neutral', appearance: 'default' },
-  breached: { label: 'Breached', tone: 'danger', appearance: 'removed' },
-  met: { label: 'Met', tone: 'success', appearance: 'success' },
-  missed: { label: 'Missed', tone: 'danger', appearance: 'removed' },
-  'no-deadline': { label: 'No deadline', tone: 'neutral', appearance: 'default' },
+  'on-track': { title: 'Time remaining', label: 'On track', tone: 'success', appearance: 'success' },
+  warning: { title: 'Time remaining', label: 'Due soon', tone: 'warning', appearance: 'moved' },
+  paused: { title: 'Time remaining', label: 'Paused', tone: 'neutral', appearance: 'default' },
+  breached: { title: 'Overdue', label: 'Breached', tone: 'danger', appearance: 'removed' },
+  met: { title: 'Left at completion', label: 'Met', tone: 'success', appearance: 'success' },
+  missed: { title: 'Late at completion', label: 'Missed', tone: 'danger', appearance: 'removed' },
+  'no-deadline': { title: 'Time remaining', label: 'No deadline', tone: 'neutral', appearance: 'default' },
 };
 
 class PanelError extends Error {}
@@ -171,7 +171,7 @@ export default function DeadlinePanel({ context }) {
             <circle cx="8" cy="8" r="6.25" />
             <path d="M8 4.5V8l2.25 1.5" />
           </svg>
-          <span className="title">Time to deadline</span>
+          <span className="title">{badge.title}</span>
         </div>
         <div className="row">
           {clock.state !== 'no-deadline' && <span className="time">{formatCountdown(clock.remaining)}</span>}
