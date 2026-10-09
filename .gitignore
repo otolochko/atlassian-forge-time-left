@@ -18,3 +18,6 @@ static/app/build
 
 # Local Forge manifest (holds app.id); copy from manifest.yml.example
 manifest.yml
+
+# Local editor settings and tasks
+.vscode/
