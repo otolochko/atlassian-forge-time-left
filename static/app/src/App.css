@@ -1,0 +1,86 @@
+/* Atlassian design tokens with light-theme fallbacks */
+:root {
+  --c-text: var(--ds-text, #172b4d);
+  --c-subtle: var(--ds-text-subtle, #44546f);
+  --c-border: var(--ds-border, #dcdfe4);
+  --c-track: var(--ds-background-neutral, #091e420f);
+  --c-success: var(--ds-text-success, #216e4e);
+  --c-success-bg: var(--ds-background-success, #dcfff1);
+  --c-success-bar: var(--ds-background-success-bold, #1f845a);
+  --c-warning: var(--ds-text-warning, #a54800);
+  --c-warning-bg: var(--ds-background-warning, #fff7d6);
+  --c-warning-bar: var(--ds-background-warning-bold, #f5cd47);
+  --c-danger: var(--ds-text-danger, #ae2e24);
+  --c-danger-bg: var(--ds-background-danger, #ffeceb);
+  --c-danger-bar: var(--ds-background-danger-bold, #c9372c);
+  --c-neutral: var(--ds-text-subtle, #44546f);
+  --c-neutral-bg: var(--ds-background-neutral, #091e420f);
+  --c-neutral-bar: var(--ds-background-neutral-bold, #758195);
+}
+
+body {
+  margin: 0;
+  padding: 4px;
+  color: var(--c-text);
+  background: transparent;
+  font: 14px/1.4 -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+.muted { color: var(--c-subtle); margin: 4px 0; }
+
+/* Card: bordered, with a header, the timer next to the state lozenge, and a state-colored progress bar */
+.countdown {
+  padding: 12px 14px;
+  border: 1px solid var(--c-border);
+  border-radius: 8px;
+}
+.countdown .head { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; font-weight: 600; }
+.countdown .icon { flex: none; color: var(--c-subtle); }
+.countdown .row { display: flex; align-items: center; justify-content: space-between; gap: 4px 12px; flex-wrap: wrap; }
+.countdown .time {
+  font: 600 26px/1.1 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  letter-spacing: -0.02em;
+  color: var(--c-text);
+}
+.countdown .badge { margin-left: auto; }
+.countdown .hint { font-size: 12px; color: var(--c-subtle); }
+.countdown .bar {
+  height: 6px;
+  margin: 12px 0 10px;
+  border-radius: 3px;
+  background: var(--c-track);
+  background: color-mix(in srgb, var(--tone-bar) 22%, transparent);
+  overflow: hidden;
+}
+.countdown .fill { height: 100%; border-radius: 3px; background: var(--tone-bar); }
+.countdown .sub { margin: 0; font-size: 12px; color: var(--c-subtle); }
+.countdown .row + .sub { margin-top: 8px; }
+
+.tone-success { --tone-text: var(--c-success); --tone-bg: var(--c-success-bg); --tone-bar: var(--c-success-bar); }
+.tone-warning { --tone-text: var(--c-warning); --tone-bg: var(--c-warning-bg); --tone-bar: var(--c-warning-bar); }
+.tone-danger { --tone-text: var(--c-danger); --tone-bg: var(--c-danger-bg); --tone-bar: var(--c-danger-bar); }
+.tone-neutral { --tone-text: var(--c-neutral); --tone-bg: var(--c-neutral-bg); --tone-bar: var(--c-neutral-bar); }
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+/* Settings page */
+.settings { max-width: 560px; padding: 8px; }
+.settings h2 { margin: 0 0 16px; }
+.settings h3 { margin: 24px 0 8px; }
+.settings .field { margin-bottom: 16px; }
+.settings .field-label { display: block; margin-bottom: 4px; font-weight: 600; }
+.settings fieldset { border: 1px solid var(--c-border); border-radius: 3px; margin: 0 0 16px; padding: 8px 12px; }
+.settings legend { font-weight: 600; padding: 0 4px; }
+.settings .threshold { display: grid; grid-template-columns: 1fr 120px; gap: 8px; }
+.statuses { max-height: 200px; overflow: auto; }
+.settings .message { margin-top: 12px; }
+.summary { display: grid; grid-template-columns: max-content 1fr; gap: 4px 16px; margin: 0; }
+.summary dt { color: var(--c-subtle); }
+.summary dd { margin: 0; }

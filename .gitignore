@@ -1,0 +1,20 @@
+node_modules
+static/app/build
+
+# Local credentials and environment files
+.env
+.env.*
+!.env.example
+!.env.*.example
+.npmrc
+*.pem
+*.key
+*.p12
+*.pfx
+
+# Private project notes
+.claude/.internal/
+.claude/prompt.md
+
+# Local Forge manifest (holds app.id); copy from manifest.yml.example
+manifest.yml

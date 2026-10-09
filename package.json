@@ -1,0 +1,13 @@
+{
+  "name": "forge-time-left",
+  "version": "1.0.0",
+  "license": "MIT",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "npm --prefix static/app run build",
+    "lint": "forge lint",
+    "test": "npm --prefix static/app test",
+    "deploy": "npm run build && forge deploy"
+  }
+}

@@ -1,0 +1,33 @@
+modules:
+  jira:issueContext:
+    - key: time-left-panel
+      resource: main
+      title: Time to deadline
+      label: Time to deadline
+      description: Live countdown to the configured deadline field
+      displayConditions:
+        entityPropertyEqualTo:
+          entity: project
+          propertyKey: time-left-config
+          objectName: enabled
+          value: 'true'
+  jira:projectSettingsPage:
+    - key: time-left-settings
+      resource: main
+      title: Time left
+      # Only Jira administrators can enable the app for a project
+      displayConditions:
+        hasGlobalPermission: ADMINISTER
+resources:
+  - key: main
+    path: static/app/build
+permissions:
+  content:
+    styles:
+      - unsafe-inline # Atlaskit components inject <style> tags
+  scopes:
+    - read:jira-work
+    - manage:jira-project
+app:
+  runtime:
+    name: nodejs22.x
