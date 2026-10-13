@@ -4,6 +4,7 @@ modules:
       resource: main
       title: Time to deadline
       label: Time to deadline
+      icon: resource:main;icon.svg
       description: Live countdown to the configured deadline field
       displayConditions:
         entityPropertyEqualTo:
