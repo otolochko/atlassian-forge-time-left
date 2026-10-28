@@ -2,10 +2,10 @@
 
 ## One-time setup: Forge CLI
 
-Requirements: Node 22.22.2 or later in the Node 22 release line (see `.nvmrc`) and an Atlassian developer account. Installing the app requires Jira admin rights on the target site. Replace `your-site.atlassian.net` in this guide with your Jira Cloud site.
+Requirements: Node 24 (see `.nvmrc`) and an Atlassian developer account. Installing the app requires Jira admin rights on the target site. Replace `your-site.atlassian.net` in this guide with your Jira Cloud site.
 
 ```bash
-nvm install 22 && nvm use 22                  # if Node 22 is not installed yet
+nvm install 24 && nvm use 24                  # if Node 24 is not installed yet
 npm install -g @forge/cli                     # install the CLI (per Node version in nvm)
 forge --version
 npm install && npm --prefix static/app install   # project dependencies, from the repo root
@@ -32,12 +32,12 @@ On WSL a keyring daemon usually has to be started per session, so option 1 is mo
 
 ## Steps
 
-**1. Use Node 22.** Run every command below in the same terminal:
+**1. Use Node 24.** Run every command below in the same terminal:
 ```bash
 # From the root of your local checkout:
 nvm install
 nvm use
-node -v   # must be v22.x
+node -v   # must be v24.x
 ```
 
 **2. Log in with your Atlassian developer account.** Use the account that will own the app registration. If you were logged in with a different account, log out first:

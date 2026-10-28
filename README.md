@@ -7,7 +7,7 @@
 Shows a real-time countdown to a configured deadline field (custom Date Time or system Due date) directly in the Jira issue view, with pause semantics inspired by JSM SLAs.
 
 ![Forge](https://img.shields.io/badge/Atlassian-Forge-0052CC?logo=atlassian&logoColor=white)
-![Runtime](https://img.shields.io/badge/runtime-nodejs22.x-339933?logo=nodedotjs&logoColor=white)
+![Runtime](https://img.shields.io/badge/runtime-nodejs24.x-339933?logo=nodedotjs&logoColor=white)
 ![UI](https://img.shields.io/badge/UI-React%20%2B%20Vite-61DAFB?logo=react&logoColor=black)
 ![Storage](https://img.shields.io/badge/storage-Jira%20Project%20Property-6554C0)
 ![Egress](https://img.shields.io/badge/external%20egress-none-2EA44F)
@@ -146,7 +146,7 @@ Settings are managed in **Project settings → Time left** (visible only to Jira
 
 ### Prerequisites
 
-- **Node.js:** 22.22.2 or later in the Node 22 release line (`.nvmrc` provided)
+- **Node.js:** 24 (`.nvmrc` provided)
 - **Forge CLI:** `npm install -g @forge/cli`
 - **Jira Cloud:** A Jira Cloud site where you have administrator access
 
@@ -200,7 +200,7 @@ forge install -e production --site your-site.atlassian.net --product jira
 
 ```text
 .
-├── .nvmrc                         # Node version (22)
+├── .nvmrc                         # Node version (24)
 ├── LICENSE
 ├── PRIVACY.md                     # Privacy policy
 ├── AGENTS.md                      # Coding agent guidance

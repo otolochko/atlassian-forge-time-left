@@ -47,7 +47,7 @@ An Atlassian Forge **Custom UI** app (React + Vite) that shows an SLA-like count
 
 ## Commands
 
-Use **Node 22.22.2 or later in the Node 22 release line** (`.nvmrc`) for the Forge CLI and jsdom component tests. With nvm, run `nvm install` and `nvm use` from the repository root before running the commands below.
+Use **Node 24** (`.nvmrc`) for the Forge CLI and jsdom component tests. With nvm, run `nvm install` and `nvm use` from the repository root before running the commands below.
 
 ```bash
 npm run setup                                   # once after cloning: npm ci in static/app and enable the pre-commit hook
