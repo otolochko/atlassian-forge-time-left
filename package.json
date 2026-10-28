@@ -4,10 +4,16 @@
   "license": "MIT",
   "private": true,
   "type": "module",
+  "config": {
+    "maxBundleKb": 1100
+  },
   "scripts": {
+    "setup": "git config core.hooksPath .githooks && npm --prefix static/app ci",
     "build": "npm --prefix static/app run build",
-    "lint": "forge lint",
+    "lint": "npm --prefix static/app run lint",
     "test": "npm --prefix static/app test",
-    "deploy": "npm run build && forge deploy"
+    "deploy": "npm run build && forge deploy",
+    "check:fast": "node scripts/check-rules.mjs && npm run lint",
+    "check": "npm run check:fast && npm test && npm run build && node scripts/check-rules.mjs --bundle"
   }
 }

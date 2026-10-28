@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import Button from '@atlaskit/button/new';
 import Checkbox from '@atlaskit/checkbox';
 import SectionMessage from '@atlaskit/section-message';
@@ -114,7 +114,6 @@ export default function ProjectSettings({ context }) {
       setSaved(check.config);
       setMessage({ type: 'ok', text: 'Saved.' });
     } catch (err) {
-      console.error('Saving settings failed', err);
       const text =
         err instanceof JiraError && err.status === 403
           ? 'Only Jira administrators can change these settings.'

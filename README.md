@@ -31,7 +31,7 @@ forge register            # interactive; writes `app.id` into manifest.yml
 npm --prefix static/app install
 ```
 
-> **Note:** `manifest.yml` is **not tracked in git** because it contains the app registration (`app.id`). The repository ships `manifest.yml.example` without an `app.id`; copy it to `manifest.yml` and run `forge register` to add your own app registration. If you change `manifest.yml` (modules, scopes, permissions), make the same change in `manifest.yml.example`, without the `app.id`. Replace `your-site.atlassian.net` in the commands below with your Jira Cloud site. Installing the app requires **Jira admin rights**.
+> **Note:** `manifest.yml` is **not tracked in git** because it contains the app registration (`app.id`). The repository ships `manifest.yml.example` with a placeholder `app.id` (`REPLACE_ME`); copy it to `manifest.yml` and run `forge register` to add your own app registration. If you change `manifest.yml` (modules, scopes, permissions), make the same change in `manifest.yml.example`, without the real `app.id`. Replace `your-site.atlassian.net` in the commands below with your Jira Cloud site. Installing the app requires **Jira admin rights**.
 
 ---
 

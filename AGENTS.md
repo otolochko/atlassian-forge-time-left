@@ -2,6 +2,45 @@
 
 This file provides guidance to coding agents (Claude Code, etc.) when working with code in this repository.
 
+<!-- standards:start -->
+## Shared standards
+
+These rules apply to every Forge app we build. The source is `STANDARDS.md` in `../it-operations-forge-template`, and `scripts/sync.sh` copies it here: edit it there, not here. The app-specific sections of this file add to these rules and win when they conflict.
+
+### Workflow
+
+- After cloning, run `npm run setup` once: it installs dependencies and enables the pre-commit hook. `npm run check` must pass before every commit. The hook runs `npm run check:fast`, CI runs `npm run check` on every push.
+- Never run `forge deploy`, `forge install`, `forge uninstall`, `forge register`, `forge variables set` or any other environment change yourself: print the exact commands and let the user run them. `forge lint` needs a login, so the user runs it before a deploy.
+- `forge deploy` does not build the UI: build first. The user hard refreshes Jira after a deploy.
+- Commit or push only when the user asks. User-visible changes go under `## Unreleased` in `CHANGELOG.md`.
+- Shared files (see the template README) change in the template first, then `scripts/sync.sh` copies them into each app.
+
+### Privacy and security
+
+- Frontend only by default: no resolvers, no `@forge/api`, no `asApp()`, no Forge storage, KVS or SQL, no triggers, unless this app's own sections say otherwise. If a call fails as the user, do not switch to `asApp()`.
+- No external egress (`permissions.external`), no remote CDNs, fonts or scripts, no analytics or telemetry.
+- Never log, store or write to a file tokens (for example `mediaJwtToken`), user `emailAddress` or other personal data. No `console` calls in UI code.
+- No `delete:*` scopes and no delete calls unless this app's own sections allow them. Ask for the fewest scopes that work.
+- `manifest.yml` is gitignored because it holds the app id. The committed copy is `manifest.yml.example` with `REPLACE_ME`: mirror every other manifest change there. Never commit `.env`; `.env.example` lists the variables.
+
+### Dependencies
+
+- Runtime dependencies: React, `react-dom`, `@forge/bridge`, `@atlaskit/tokens` and `fflate`; apps with resolvers add the `@forge/*` packages they need. Dev tooling: Vite, `@vitejs/plugin-react`, ESLint 9 (pinned major), Vitest. Ask before adding anything else. No UI component libraries in new apps.
+- Use the Node version from `.nvmrc`.
+
+### Code, docs and UI copy
+
+- English for code, comments, docs and commit messages. Reply to the user in Ukrainian.
+- Never use the em dash character anywhere: the check fails on it.
+- Sentence case in the UI. The display name lives in one place in code (`src/appInfo.js` in new apps) and in the manifest.
+- UI follows `../it-operations-forge-template/DESIGN.md`: read it before UI work and finish with its checklist (section 16). Plain HTML components and `var(--ds-...)` tokens with fallbacks, no hard-coded colors.
+
+### Quality gate
+
+- `npm run check` runs the rules in `scripts/check-rules.mjs`, lint, tests, the build and the bundle size check.
+- Never disable a rule, skip a test or raise a limit just to get a green check: fix the cause or tell the user.
+<!-- standards:end -->
+
 ## What this is
 
 An Atlassian Forge **Custom UI** app (React + Vite) that shows an SLA-like countdown to a Jira date field in the issue view sidebar, plus a per-project settings page. `README.md` has the architecture decisions and the manual test plan. Optional local specifications in `.claude/prompt.md` are git-ignored and are not required to work with the repository.
@@ -11,17 +50,20 @@ An Atlassian Forge **Custom UI** app (React + Vite) that shows an SLA-like count
 Use **Node 22.22.2 or later in the Node 22 release line** (`.nvmrc`) for the Forge CLI and jsdom component tests. With nvm, run `nvm install` and `nvm use` from the repository root before running the commands below.
 
 ```bash
-npm --prefix static/app install
+npm run setup                                   # once after cloning: npm ci in static/app and enable the pre-commit hook
+npm run check                                   # full gate: rules, lint, tests, build, bundle size
+npm run check:fast                              # rules and lint (the pre-commit hook)
+npm run lint                                    # ESLint for static/app
 npm test                                        # vitest run (same as npm --prefix static/app test)
 npm --prefix static/app exec vitest run src/lib/clock.test.js   # one file
 npm --prefix static/app exec vitest run -t "breached"           # one test by name
 npm run build                                   # vite build -> static/app/build
-npm run lint                                    # forge lint (needs a local manifest.yml with app.id)
+npm run deploy                                  # build, then forge deploy (the user runs it)
 ```
 
-`manifest.yml` is **git-ignored** (it holds the app-specific `app.id`). The tracked template is `manifest.yml.example`; a fresh checkout needs `cp manifest.yml.example manifest.yml` and then `forge register`. **Whenever you change `manifest.yml` (modules, scopes, permissions, resources), make the same change in `manifest.yml.example`.** The example must never contain `app.id` or any other app/site-specific identifier.
+`manifest.yml` is **git-ignored** (it holds the app-specific `app.id`). The tracked template is `manifest.yml.example` (with `REPLACE_ME`); a fresh checkout needs `cp manifest.yml.example manifest.yml` and then `forge register`. **Whenever you change `manifest.yml` (modules, scopes, permissions, resources), make the same change in `manifest.yml.example`.** The example must never contain a real `app.id` or any other app/site-specific identifier.
 
-`forge login` and `forge register` are interactive; the user runs them. **Never run `forge deploy`, `forge install` or `forge uninstall` without asking first.** Full command list: `.claude/deploy-guide.md`.
+`forge login` and `forge register` are interactive; the user runs them. Full command list: `.claude/deploy-guide.md`.
 
 ## Architecture
 
@@ -39,3 +81,9 @@ npm run lint                                    # forge lint (needs a local mani
 - UI uses Atlaskit components (lozenge, button, select, checkbox, toggle, textfield, section-message) plus plain CSS with design tokens (`App.css`). Atlaskit injects `<style>` tags, hence `permissions.content.styles: ['unsafe-inline']` in the manifest. Its bundle also contains a Statsig feature-gate client (via `@atlaskit/platform-feature-flags`); the app never initializes it, and `ProjectSettings.test.jsx` guards that rendering makes no network requests. Keep it that way (no external egress). jsdom tests need the `matchMedia` stub in `src/test-setup.js`.
 - Scopes are `read:jira-work` and `manage:jira-project`. Saving the project property (`PUT /project/{id}/properties/{key}`) needs `manage:jira-project`; without it Jira answers 401. Adding a scope needs `forge deploy` and then `forge install --upgrade`.
 - Consent for non-owner users only works in the `production` Forge environment.
+
+## App-specific rules
+
+- No backend, by decision (see Architecture): the frontend-only default of the shared standards applies unchanged.
+- `config.maxBundleKb` is 1100 in `package.json` because the Atlaskit components bundle about 1.1 MB of JS (the main chunk alone is about 840 kB). It should come down, not go up.
+- Legacy code: `react-hooks/purity` is set to `warn` in `static/app/eslint.config.js` because `DeadlinePanel.jsx` calls `Date.now()` during render. Fix the warning, then remove the override.
