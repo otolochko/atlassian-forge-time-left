@@ -35,6 +35,7 @@ These rules apply to every Forge app we build. The source is `STANDARDS.md` in `
 - Never use the em dash character anywhere: the check fails on it.
 - Sentence case in the UI. The display name lives in one place in code (`src/appInfo.js` in new apps) and in the manifest.
 - UI follows `../it-operations-forge-template/DESIGN.md`: read it before UI work and finish with its checklist (section 16). Plain HTML components and `var(--ds-...)` tokens with fallbacks, no hard-coded colors.
+- Before working with Atlassian APIs read `../it-operations-forge-template/api-notes.md`; add new verified findings there with their source.
 
 ### Quality gate
 
