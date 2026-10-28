@@ -1,4 +1,3 @@
-import React from 'react';
 import { createRoot } from 'react-dom/client';
 import { view } from '@forge/bridge';
 import DeadlinePanel from './panel/DeadlinePanel';

@@ -19,7 +19,7 @@ Shows a real-time countdown to a configured deadline field (custom Date Time or 
 
 ## 🎬 Demo
 
-> **Screenshot placeholder** — The panel appears in the issue view sidebar showing the countdown, state badge, and progress bar. The time updates live (1s when < 1 day remaining, 30s otherwise).
+> **Screenshot placeholder** - The panel appears in the issue view sidebar showing the countdown, state badge, and progress bar. The time updates live (1s when < 1 day remaining, 30s otherwise).
 
 ---
 
@@ -30,9 +30,9 @@ Jira's native date fields show static values. Teams tracking SLAs or internal de
 | | |
 |---|---|
 | 🎯 **Live countdown** | Updates in real-time with sub-second precision, adapts tick rate to remaining time |
-| 📊 **Smart states** | On track, Due soon, Paused, Breached, Met, Missed, No deadline — with color-coded badges |
+| 📊 **Smart states** | On track, Due soon, Paused, Breached, Met, Missed, No deadline - with color-coded badges |
 | ⏸️ **Pause semantics** | Time in configured pause statuses extends the effective deadline (like JSM SLAs) |
-| 🪶 **Zero cost** | Pure frontend, no function modules, no storage, no egress — runs entirely on Atlassian |
+| 🪶 **Zero cost** | Pure frontend, no function modules, no storage, no egress - runs entirely on Atlassian |
 | ⚡ **Lightweight** | Single static resource, two modules (panel + settings), ~840 kB bundle |
 | 🎨 **Native look** | Atlaskit components with Atlassian design tokens (light/dark) |
 | 🔒 **Per-project** | Configured via project settings, enabled/disabled independently per project |
@@ -126,7 +126,7 @@ Settings are managed in **Project settings → Time left** (visible only to Jira
 | Option | Values | Default |
 |---|---|---|
 | **Enabled** | Toggle | `false` |
-| **Deadline field** | Any Date or Date Time field | — |
+| **Deadline field** | Any Date or Date Time field | - |
 | **Clock starts** | Issue created / None / Any Date or Date Time field | Issue created |
 | **Due soon threshold** | Hours left or Percent of total time | 4 hours |
 | **Pause statuses** | Any project statuses (multi-select) | Empty |
@@ -162,11 +162,11 @@ npm install -g @forge/cli
 cp manifest.yml.example manifest.yml   # manifest.yml is git-ignored
 forge login                               # use your Atlassian developer account
 forge register                            # interactive; writes app.id into manifest.yml
-npm --prefix static/app install
+npm run setup
 ```
 
 > [!NOTE]
-> `manifest.yml` is **not tracked in git** because it contains the app registration (`app.id`). The repository ships `manifest.yml.example` without an `app.id`. Whenever you change `manifest.yml` (modules, scopes, permissions, resources), make the same change in `manifest.yml.example` (without the `app.id`).
+> `manifest.yml` is **not tracked in git** because it contains the app registration (`app.id`). The repository ships `manifest.yml.example` with a placeholder `app.id` (`REPLACE_ME`); replace it by running `forge register`. Whenever you change `manifest.yml` (modules, scopes, permissions, resources), make the same change in `manifest.yml.example` (keeping `REPLACE_ME` instead of the real `app.id`).
 
 ### Build commands
 
@@ -175,7 +175,8 @@ npm run build             # vite build -> static/app/build
 npm test                  # vitest (clock, config, format, panel refresh)
 npm --prefix static/app exec vitest run src/lib/clock.test.js   # one file
 npm --prefix static/app exec vitest run -t "breached"           # one test by name
-npm run lint              # forge lint (needs a local manifest.yml with app.id)
+npm run lint              # ESLint for static/app
+npm run check             # rules, lint, tests, build and bundle size
 ```
 
 ### Deploy commands
@@ -281,10 +282,10 @@ The clock can be in one of seven states, determined by the `computeClock` functi
 
 ## 🔮 Future Work
 
-- 📅 **Working-hours calendars** — Pure math in `clock.js`, configurable per project
-- 📊 **Dashboard gadget** — A `jira:dashboardGadget` listing nearest deadlines via JQL (frontend-only)
-- 💾 **Store effective deadline** — In an issue property so JQL can use it (needs triggers/billed Forge Functions)
-- 🌐 **Multiple timezones** — Support for teams across different timezones
+- 📅 **Working-hours calendars** - Pure math in `clock.js`, configurable per project
+- 📊 **Dashboard gadget** - A `jira:dashboardGadget` listing nearest deadlines via JQL (frontend-only)
+- 💾 **Store effective deadline** - In an issue property so JQL can use it (needs triggers/billed Forge Functions)
+- 🌐 **Multiple timezones** - Support for teams across different timezones
 
 ---
 
