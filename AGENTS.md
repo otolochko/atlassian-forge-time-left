@@ -26,6 +26,7 @@ These rules apply to every Forge app we build. The source is `STANDARDS.md` in `
 ### Dependencies
 
 - Runtime dependencies: React, `react-dom`, `@forge/bridge`, `@atlaskit/tokens` and `fflate`; apps with resolvers add the `@forge/*` packages they need. Dev tooling: Vite, `@vitejs/plugin-react`, ESLint 9 (pinned major), Vitest. Ask before adding anything else. No UI component libraries in new apps.
+- Dependabot opens one monthly PR for minor and patch updates; major updates come as separate PRs (ESLint majors are ignored).
 - Use the Node version from `.nvmrc`.
 
 ### Code, docs and UI copy
