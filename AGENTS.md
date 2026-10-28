@@ -86,4 +86,3 @@ npm run deploy                                  # build, then forge deploy (the 
 
 - No backend, by decision (see Architecture): the frontend-only default of the shared standards applies unchanged.
 - `config.maxBundleKb` is 1100 in `package.json` because the Atlaskit components bundle about 1.1 MB of JS (the main chunk alone is about 840 kB). It should come down, not go up.
-- Legacy code: `react-hooks/purity` is set to `warn` in `static/app/eslint.config.js` because `DeadlinePanel.jsx` calls `Date.now()` during render. Fix the warning, then remove the override.

@@ -127,12 +127,11 @@ export default function DeadlinePanel({ context }) {
     };
   }, [context]);
 
-  const running = data?.deadline != null && !data.completedAt;
-  const probe = running
-    ? computeClock({ ...data, now: Date.now(), pauseStatusIds: data.config.pauseStatusIds, warning: data.config.warning })
-    : null;
-  const soon = probe && !probe.isPaused && Math.abs(probe.remaining) < DAY;
-  const now = useTicker(soon ? 1000 : 30000);
+  const now = useTicker((t) => {
+    if (data?.deadline == null || data.completedAt) return 30000;
+    const probe = computeClock({ ...data, now: t, pauseStatusIds: data.config.pauseStatusIds, warning: data.config.warning });
+    return !probe.isPaused && Math.abs(probe.remaining) < DAY ? 1000 : 30000;
+  });
 
   let body;
   if (error === 'field-missing') {
