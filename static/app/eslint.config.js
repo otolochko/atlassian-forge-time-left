@@ -22,8 +22,6 @@ export default [
       ...reactHooks.configs.recommended.rules,
       'react/prop-types': 'off',
       'no-console': 'error',
-      // Legacy code: fix these warnings, then remove this override.
-      'react-hooks/purity': 'warn',
     },
   },
   {

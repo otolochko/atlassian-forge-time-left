@@ -1,11 +1,12 @@
 import { useEffect, useState } from 'react';
 
 /**
- * Returns the current time (epoch ms), refreshed every `intervalMs`.
+ * Returns the current time (epoch ms), refreshed every `intervalFor(now)` ms.
  * Stops while the tab is hidden and recomputes immediately on return.
  */
-export function useTicker(intervalMs) {
+export function useTicker(intervalFor) {
   const [now, setNow] = useState(() => Date.now());
+  const intervalMs = intervalFor(now);
 
   useEffect(() => {
     let timer = null;

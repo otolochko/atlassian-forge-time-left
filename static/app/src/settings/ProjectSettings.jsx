@@ -17,10 +17,10 @@ const DEFAULTS = {
   pauseStatusIds: [],
 };
 
-async function loadOptions(project) {
+async function loadOptions(projectKey) {
   const [fields, byType] = await Promise.all([
     jiraGet('/rest/api/3/field'),
-    jiraGet(`/rest/api/3/project/${encodeURIComponent(project.key)}/statuses`),
+    jiraGet(`/rest/api/3/project/${encodeURIComponent(projectKey)}/statuses`),
   ]);
   const dateFields = fields
     .filter((f) => f.schema && (f.schema.type === 'datetime' || f.schema.type === 'date'))
@@ -61,6 +61,7 @@ const THRESHOLD_UNITS = [
 
 export default function ProjectSettings({ context }) {
   const { project } = context.extension;
+  const { id: projectId, key: projectKey } = project;
   const [options, setOptions] = useState(null);
   const [saved, setSaved] = useState(null);
   const [form, setForm] = useState(DEFAULTS);
@@ -68,14 +69,14 @@ export default function ProjectSettings({ context }) {
   const [loadFailed, setLoadFailed] = useState(false);
 
   useEffect(() => {
-    Promise.all([loadOptions(project), readConfig(project.id)])
+    Promise.all([loadOptions(projectKey), readConfig(projectId)])
       .then(([opts, config]) => {
         setOptions(opts);
         setSaved(config);
         if (config) setForm(config);
       })
       .catch(() => setLoadFailed(true));
-  }, [project.id, project.key]);
+  }, [projectId, projectKey]);
 
   if (loadFailed) {
     return <SectionMessage appearance="error">Could not load the settings. Try reloading the page.</SectionMessage>;
