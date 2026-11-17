@@ -75,8 +75,8 @@ function subline(d, clock, fmt) {
 }
 
 // Full details live in the tooltip
-function tooltip(d, fmt) {
-  return `From "${d.deadlineFieldName}" · deadline ${fmt(d.deadline)}`;
+function tooltip(d, fmt, timeZone) {
+  return `From "${d.deadlineFieldName}" · deadline ${fmt(d.deadline)} (${timeZone})`;
 }
 
 export default function DeadlinePanel({ context }) {
@@ -148,7 +148,7 @@ export default function DeadlinePanel({ context }) {
     body = (
       <div
         className={`countdown tone-${badge.tone}`}
-        title={clock.state === 'no-deadline' ? undefined : tooltip(data, fmt)}
+        title={clock.state === 'no-deadline' ? undefined : tooltip(data, fmt, context.timezone)}
       >
         <div className="head">
           <svg className="icon" width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">

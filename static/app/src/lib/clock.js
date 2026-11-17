@@ -18,9 +18,12 @@ const NO_OFFSET = /^\d{4}-\d{2}-\d{2}[ T]\d{2}:\d{2}(:\d{2}(\.\d+)?)?$/;
  */
 export function resolveDateField(value, type, timeZone, noOffsetTimeZone = timeZone) {
   if (!value) return null;
-  if (type === 'date') return fromZonedTime(`${value}T23:59:59.999`, timeZone).getTime();
-  if (NO_OFFSET.test(value)) return fromZonedTime(value.replace(' ', 'T'), noOffsetTimeZone).getTime();
-  return parseJiraDate(value);
+  let ms;
+  if (type === 'date') ms = fromZonedTime(`${value}T23:59:59.999`, timeZone).getTime();
+  else if (NO_OFFSET.test(value)) ms = fromZonedTime(value.replace(' ', 'T'), noOffsetTimeZone).getTime();
+  else ms = parseJiraDate(value);
+  // A text field can hold anything: unreadable means no deadline
+  return Number.isNaN(ms) ? null : ms;
 }
 
 /**

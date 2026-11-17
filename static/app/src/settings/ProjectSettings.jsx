@@ -18,8 +18,18 @@ const DEFAULTS = {
   timeZone: null,
 };
 
-const PROFILE_ZONE = { label: 'Jira profile time zone (default)', value: '' };
-const ZONE_OPTIONS = [PROFILE_ZONE, ...Intl.supportedValuesOf('timeZone').map((z) => ({ label: z, value: z }))];
+const PROFILE_ZONE = { label: "Viewer's time zone (default)", value: '' };
+// Some systems write a fixed offset all year, with no daylight saving. IANA spells UTC+2 as Etc/GMT-2 (inverted sign)
+const FIXED_ZONES = Array.from({ length: 27 }, (_, i) => i - 12).map((h) => {
+  const sign = h < 0 ? '-' : '+';
+  const hh = String(Math.abs(h)).padStart(2, '0');
+  return { label: `UTC${sign}${hh}:00 (fixed, no daylight saving)`, value: h === 0 ? 'UTC' : `Etc/GMT${h > 0 ? '-' : '+'}${Math.abs(h)}` };
+});
+const ZONE_OPTIONS = [
+  PROFILE_ZONE,
+  ...FIXED_ZONES,
+  ...Intl.supportedValuesOf('timeZone').map((z) => ({ label: z, value: z })),
+];
 
 async function loadOptions(projectKey) {
   const [fields, byType] = await Promise.all([
@@ -27,7 +37,12 @@ async function loadOptions(projectKey) {
     jiraGet(`/rest/api/3/project/${encodeURIComponent(projectKey)}/statuses`),
   ]);
   const dateFields = fields
-    .filter((f) => f.schema && (f.schema.type === 'datetime' || f.schema.type === 'date'))
+    // Custom text fields (including read only ones) can hold dates written by other systems, like "2026-11-23 12:00:00"
+    .filter(
+      (f) =>
+        f.schema &&
+        (f.schema.type === 'datetime' || f.schema.type === 'date' || (f.schema.type === 'string' && f.schema.custom))
+    )
     .sort((a, b) => a.name.localeCompare(b.name));
   // Flatten and deduplicate statuses across issue types
   const statuses = new Map();
@@ -53,7 +68,7 @@ function Summary({ config, options }) {
       <dt>Due soon</dt>
       <dd>{w.type === 'hours' ? `less than ${w.value} h left` : `less than ${w.value}% left`}</dd>
       <dt>Time zone for values without an offset</dt>
-      <dd>{config.timeZone ?? 'Jira profile time zone'}</dd>
+      <dd>{config.timeZone ?? "Viewer's time zone"}</dd>
       <dt>Pause statuses</dt>
       <dd>{config.pauseStatusIds.length ? config.pauseStatusIds.map(statusName).join(', ') : 'None'}</dd>
     </dl>
@@ -168,7 +183,7 @@ export default function ProjectSettings({ context }) {
           onChange={(o) => set({ timeZone: o?.value || null })}
         />
         <p className="muted">
-          For text fields such as 2026-11-23 12:00:00. Values with an offset or a date only are not affected.
+          For text fields such as 2026-11-23 12:00:00. Values with an offset or a date only are not affected. Set the zone the other system writes in; otherwise each viewer&apos;s own zone is used.
         </p>
       </div>
 

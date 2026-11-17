@@ -133,6 +133,16 @@ describe('resolveDateField', () => {
     );
   });
 
+  it('a fixed UTC+2 zone ignores daylight saving all year', () => {
+    expect(resolveDateField('2026-08-21 13:59:22', 'datetime', 'UTC', 'Etc/GMT-2')).toBe(Date.UTC(2026, 7, 21, 11, 59, 22));
+    expect(resolveDateField('2026-11-23 12:00:00', 'datetime', 'UTC', 'Etc/GMT-2')).toBe(Date.UTC(2026, 10, 23, 10, 0, 0));
+  });
+
+  it('unreadable text gives null', () => {
+    expect(resolveDateField('soon', 'datetime', 'UTC')).toBeNull();
+    expect(resolveDateField('2026-13-45 99:99:99', 'datetime', 'UTC', 'Europe/Kyiv')).toBeNull();
+  });
+
   it('datetime values are parsed as Jira timestamps; empty gives null', () => {
     expect(resolveDateField('2026-10-01T09:00:00.000+0200', 'datetime', 'UTC')).toBe(
       Date.UTC(2026, 9, 1, 7)

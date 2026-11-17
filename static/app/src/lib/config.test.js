@@ -25,6 +25,7 @@ describe('validateConfig', () => {
   it('accepts an optional IANA time zone and rejects an unknown one', () => {
     expect(validateConfig({ ...valid(), timeZone: 'Europe/Kyiv' })).toEqual({ ok: true, config: { ...valid(), timeZone: 'Europe/Kyiv' } });
     expect(validateConfig({ ...valid(), timeZone: null }).config).toEqual(valid());
+    expect(validateConfig({ ...valid(), timeZone: 'Etc/GMT-2' }).ok).toBe(true);
     expect(validateConfig({ ...valid(), timeZone: 'Mars/Base' }).ok).toBe(false);
     expect(validateConfig({ ...valid(), timeZone: 5 }).ok).toBe(false);
   });
