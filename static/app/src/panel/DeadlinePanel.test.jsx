@@ -101,7 +101,7 @@ describe('DeadlinePanel refresh', () => {
     expect(container.textContent).toContain('Was due Oct 1, 23:59');
     expect(container.textContent).toContain('Overdue');
     expect(container.textContent).not.toContain('effective');
-    expect(container.querySelector('.countdown').title).toBe('From "Deadline" · deadline Oct 1, 23:59');
+    expect(container.querySelector('.countdown').title).toBe('From "Deadline" · deadline Oct 1, 23:59 (UTC)');
   });
 
   it('accepts the latest success after an earlier error', async () => {

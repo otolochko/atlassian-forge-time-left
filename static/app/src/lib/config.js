@@ -8,6 +8,15 @@ const propertyPath = (projectIdOrKey) =>
 /** `startFieldId` value meaning "no start: deadline only" (null still means issue created) */
 export const NO_START = 'none';
 
+const isTimeZone = (v) => {
+  try {
+    new Intl.DateTimeFormat('en-US', { timeZone: v });
+    return true;
+  } catch {
+    return false;
+  }
+};
+
 const isFieldId = (v) => typeof v === 'string' && v.length > 0;
 
 /**
@@ -40,6 +49,11 @@ export function validateConfig(value) {
     return { ok: false, error: 'Invalid threshold type.' };
   }
 
+  const zone = value.timeZone;
+  if (zone != null && zone !== '' && !(typeof zone === 'string' && isTimeZone(zone))) {
+    return { ok: false, error: 'Invalid time zone.' };
+  }
+
   const ids = value.pauseStatusIds;
   if (!Array.isArray(ids) || !ids.every((id) => typeof id === 'string')) {
     return { ok: false, error: 'Invalid pause statuses.' };
@@ -54,6 +68,7 @@ export function validateConfig(value) {
       startFieldId: value.startFieldId,
       warning: { type: w.type, value: w.value },
       pauseStatusIds: [...ids],
+      ...(zone ? { timeZone: zone } : {}),
     },
   };
 }

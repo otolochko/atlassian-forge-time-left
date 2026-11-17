@@ -94,6 +94,7 @@ flowchart LR
 | `warning.type` | string | Threshold type: `"hours"` or `"percent"` |
 | `warning.value` | number | Threshold value: hours remaining or percentage of total time |
 | `pauseStatusIds` | string[] | Status IDs that show the Paused badge (the deadline is not extended) |
+| `timeZone` | string\|absent | Optional IANA zone (for example `Europe/Kyiv`) used to read datetime values that have no offset, such as the text `2026-11-23 12:00:00`. Absent means each viewer's own time zone, so set it for text fields |
 
 > [!WARNING]
 > Invalid or missing configuration means the app is "not configured" for that project. The panel remains hidden until valid config with `enabled: true` exists.
@@ -126,10 +127,11 @@ Settings are managed in **Project settings → Time left** (visible only to Jira
 | Option | Values | Default |
 |---|---|---|
 | **Enabled** | Toggle | `false` |
-| **Deadline field** | Any Date or Date Time field | - |
-| **Clock starts** | Issue created / None / Any Date or Date Time field | Issue created |
+| **Deadline field** | Any Date, Date Time or custom text field (text must look like `2026-11-23 12:00:00`; anything else shows No deadline) | - |
+| **Clock starts** | Issue created / None / Any Date, Date Time or custom text field | Issue created |
 | **Due soon threshold** | Hours left or Percent of total time | 4 hours |
 | **Pause statuses** | Any project statuses (multi-select) | Empty |
+| **Time zone for values without an offset** | Any IANA time zone | Viewer's time zone |
 
 ### Access control
 
