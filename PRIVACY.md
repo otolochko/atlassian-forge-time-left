@@ -18,15 +18,12 @@ The app reads this data from your Jira site, using the permissions of the signed
 | Data | Why |
 | --- | --- |
 | Issue ID/key, status, created date, resolution date, status-category change date, configured date fields, and field names | To calculate and display the countdown |
-| Full issue changelog, when pause statuses are configured | To derive the status timeline and calculate pause time |
 | Field metadata returned by Jira, including names, IDs, and schemas | To build the date-field selector; the settings page filters the returned list to date and datetime fields |
 | Project statuses and associated issue-type metadata | To build the pause-status selector |
 | Project property `time-left-config` | To read and save the project settings |
 | Forge context, including locale, time zone, issue/project identifiers, and any account/site identifiers provided by Forge | To select the app view, identify the issue and project, and format dates and times |
 
-The changelog endpoint returns more than status transitions. Its response can include changes to other fields, their previous and new values, and author metadata such as account IDs, display names, avatar URLs, and email addresses when Jira makes them available. The response is received in browser memory. The countdown calculation uses only status transitions and their timestamps; it does not display author metadata or unrelated field changes. See the [Jira changelog API](https://developer.atlassian.com/cloud/jira/platform/rest/v3/api-group-issues/#api-rest-api-3-issue-issueidorkey-changelog-get).
-
-The app does not separately request issue summaries, descriptions, comments, attachment contents, or user profiles. Changes to other issue fields may nevertheless be present in the changelog response described above.
+The app does not separately request issue summaries, descriptions, comments, attachment contents, or user profiles.
 
 ## Data the app stores
 
@@ -45,7 +42,7 @@ Issue data and API responses are processed in browser memory while the app is op
 
 | Scope | Use |
 | --- | --- |
-| `read:jira-work` | Read issues, the changelog, fields, statuses, and the project property |
+| `read:jira-work` | Read issues, fields, statuses, and the project property |
 | `manage:jira-project` | Save the app's configuration as a project property |
 
 All Jira API requests use [Forge Bridge `requestJira`](https://developer.atlassian.com/platform/forge/apis-reference/ui-api-bridge/requestJira/) on behalf of the signed-in user. Access is limited by both the app's declared scopes and that user's Jira permissions. Saving the configuration requires the Administer projects or Administer Jira permission.
