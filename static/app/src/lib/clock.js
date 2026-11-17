@@ -8,13 +8,18 @@ export function parseJiraDate(s) {
   return s ? new Date(s.replace(/([+-]\d{2})(\d{2})$/, '$1:$2')).getTime() : null;
 }
 
+// "2026-11-23 12:00:00": a datetime with no offset, as text fields filled by other systems often hold
+const NO_OFFSET = /^\d{4}-\d{2}-\d{2}[ T]\d{2}:\d{2}(:\d{2}(\.\d+)?)?$/;
+
 /**
  * Resolves a Jira field value to epoch ms.
  * Date-only values ("2026-10-08") mean the end of that day (23:59:59.999) in the given timezone.
+ * A datetime with no offset is read in `noOffsetTimeZone`, never in the browser's zone.
  */
-export function resolveDateField(value, type, timeZone) {
+export function resolveDateField(value, type, timeZone, noOffsetTimeZone = timeZone) {
   if (!value) return null;
   if (type === 'date') return fromZonedTime(`${value}T23:59:59.999`, timeZone).getTime();
+  if (NO_OFFSET.test(value)) return fromZonedTime(value.replace(' ', 'T'), noOffsetTimeZone).getTime();
   return parseJiraDate(value);
 }
 

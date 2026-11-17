@@ -115,6 +115,24 @@ describe('resolveDateField', () => {
     );
   });
 
+  it('a datetime without an offset is read in the given zone, not the browser zone', () => {
+    // Europe/Kyiv: EEST (+03:00) in August, EET (+02:00) in November
+    expect(resolveDateField('2026-08-21 13:59:22', 'datetime', 'UTC', 'Europe/Kyiv')).toBe(
+      Date.UTC(2026, 7, 21, 10, 59, 22)
+    );
+    expect(resolveDateField('2026-11-23 12:00:00', 'datetime', 'UTC', 'Europe/Kyiv')).toBe(
+      Date.UTC(2026, 10, 23, 10, 0, 0)
+    );
+    // Without a separate zone it falls back to the user's zone
+    expect(resolveDateField('2026-11-23T12:00:00', 'datetime', 'Europe/Kyiv')).toBe(
+      Date.UTC(2026, 10, 23, 10, 0, 0)
+    );
+    // An explicit offset wins over the zone
+    expect(resolveDateField('2026-11-23T12:00:00.000+0300', 'datetime', 'UTC', 'Europe/Kyiv')).toBe(
+      Date.UTC(2026, 10, 23, 9, 0, 0)
+    );
+  });
+
   it('datetime values are parsed as Jira timestamps; empty gives null', () => {
     expect(resolveDateField('2026-10-01T09:00:00.000+0200', 'datetime', 'UTC')).toBe(
       Date.UTC(2026, 9, 1, 7)

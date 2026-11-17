@@ -15,7 +15,11 @@ const DEFAULTS = {
   startFieldId: null,
   warning: { type: 'hours', value: 4 },
   pauseStatusIds: [],
+  timeZone: null,
 };
+
+const PROFILE_ZONE = { label: 'Jira profile time zone (default)', value: '' };
+const ZONE_OPTIONS = [PROFILE_ZONE, ...Intl.supportedValuesOf('timeZone').map((z) => ({ label: z, value: z }))];
 
 async function loadOptions(projectKey) {
   const [fields, byType] = await Promise.all([
@@ -48,6 +52,8 @@ function Summary({ config, options }) {
       <dd>{config.startFieldId === NO_START ? 'None' : config.startFieldId ? fieldName(config.startFieldId) : 'Issue created'}</dd>
       <dt>Due soon</dt>
       <dd>{w.type === 'hours' ? `less than ${w.value} h left` : `less than ${w.value}% left`}</dd>
+      <dt>Time zone for values without an offset</dt>
+      <dd>{config.timeZone ?? 'Jira profile time zone'}</dd>
       <dt>Pause statuses</dt>
       <dd>{config.pauseStatusIds.length ? config.pauseStatusIds.map(statusName).join(', ') : 'None'}</dd>
     </dl>
@@ -151,6 +157,19 @@ export default function ProjectSettings({ context }) {
           value={startOptions.find((o) => o.value === (form.startFieldId ?? '')) ?? null}
           onChange={(o) => setStart(o?.value ?? '')}
         />
+      </div>
+
+      <div className="field">
+        <label htmlFor="dc-zone" className="field-label">Time zone for values without an offset</label>
+        <Select
+          inputId="dc-zone"
+          options={ZONE_OPTIONS}
+          value={ZONE_OPTIONS.find((o) => o.value === (form.timeZone ?? '')) ?? PROFILE_ZONE}
+          onChange={(o) => set({ timeZone: o?.value || null })}
+        />
+        <p className="muted">
+          For text fields such as 2026-11-23 12:00:00. Values with an offset or a date only are not affected.
+        </p>
       </div>
 
       <fieldset>

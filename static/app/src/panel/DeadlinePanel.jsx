@@ -37,8 +37,9 @@ async function load(context) {
   const f = data.fields;
   const tz = context.timezone;
   // Date-only values (e.g. Due date) look like "2026-10-08"; datetime values carry a time
+  // Values without an offset are read in the configured zone, falling back to the user's
   const resolve = (id) =>
-    f[id] ? resolveDateField(f[id], DATE_ONLY.test(f[id]) ? 'date' : 'datetime', tz) : null;
+    f[id] ? resolveDateField(f[id], DATE_ONLY.test(f[id]) ? 'date' : 'datetime', tz, config.timeZone ?? tz) : null;
 
   const created = parseJiraDate(f.created);
   const start = config.startFieldId === NO_START ? null : (config.startFieldId && resolve(config.startFieldId)) ?? created;
