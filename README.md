@@ -4,7 +4,7 @@
 
 **Live SLA-like countdown to a Jira date field in the issue sidebar.**
 
-Shows a real-time countdown to a configured deadline field (custom Date Time or system Due date) directly in the Jira issue view, with pause semantics inspired by JSM SLAs.
+Shows a real-time countdown to a configured deadline field (custom Date Time or system Due date) directly in the Jira issue view, with a Paused label for issues sitting in configured statuses.
 
 ![Forge](https://img.shields.io/badge/Atlassian-Forge-0052CC?logo=atlassian&logoColor=white)
 ![Runtime](https://img.shields.io/badge/runtime-nodejs24.x-339933?logo=nodedotjs&logoColor=white)
@@ -25,13 +25,13 @@ Shows a real-time countdown to a configured deadline field (custom Date Time or 
 
 ## ✨ Why
 
-Jira's native date fields show static values. Teams tracking SLAs or internal deadlines need a **live, at-a-glance indicator** that reflects actual time remaining, accounts for pauses, and updates automatically. Time Left provides this as a lightweight Forge app with **zero backend costs** and **no external dependencies**.
+Jira's native date fields show static values. Teams tracking SLAs or internal deadlines need a **live, at-a-glance indicator** that reflects actual time remaining, and updates automatically. Time Left provides this as a lightweight Forge app with **zero backend costs** and **no external dependencies**.
 
 | | |
 |---|---|
 | 🎯 **Live countdown** | Updates in real-time with sub-second precision, adapts tick rate to remaining time |
 | 📊 **Smart states** | On track, Due soon, Paused, Breached, Met, Missed, No deadline - with color-coded badges |
-| ⏸️ **Pause semantics** | Time in configured pause statuses extends the effective deadline (like JSM SLAs) |
+| ⏸️ **Pause label** | Issues in configured pause statuses show a Paused badge; the deadline and the countdown are not changed |
 | 🪶 **Zero cost** | Pure frontend, no function modules, no storage, no egress - runs entirely on Atlassian |
 | ⚡ **Lightweight** | Single static resource, two modules (panel + settings), ~840 kB bundle |
 | 🎨 **Native look** | Atlaskit components with Atlassian design tokens (light/dark) |
@@ -45,7 +45,7 @@ Jira's native date fields show static values. Teams tracking SLAs or internal de
 flowchart LR
     A[Issue View] -->|context| B[DeadlinePanel]
     B -->|read| C[Project Property: time-left-config]
-    B -->|fetch| D[Issue + Changelog]
+    B -->|fetch| D[Issue]
     D -->|parse| E[clock.js]
     E -->|compute| F[State + Remaining]
     F -->|render| B
@@ -54,8 +54,8 @@ flowchart LR
 ```
 
 1. **Panel initialization:** The `time-left-panel` Custom UI module loads in the issue sidebar, reads the project's `time-left-config` property
-2. **Data fetch:** Fetches the issue with configured fields (`deadlineFieldId`, `startFieldId`, status, created, resolutiondate) and, if pause statuses are configured, the full changelog
-3. **Clock computation:** Pure functions in `lib/clock.js` parse Jira dates, build a status timeline from changelog, calculate pause time, and compute the effective deadline and remaining time
+2. **Data fetch:** Fetches the issue with configured fields (`deadlineFieldId`, `startFieldId`, status, created, resolutiondate)
+3. **Clock computation:** Pure functions in `lib/clock.js` parse Jira dates and compute the remaining time
 4. **State determination:** Determines state (on-track, warning, paused, breached, met, missed) based on remaining time, pause status, and completion
 5. **Live updates:** The `useTicker` hook drives re-computation every 1s (< 1 day remaining) or 30s (longer), pauses when the browser tab is hidden
 6. **Event refresh:** Listens for `JIRA_ISSUE_CHANGED` bridge events to refetch after field edits
@@ -93,7 +93,7 @@ flowchart LR
 | `startFieldId` | string\|null | Jira field ID for the clock start, or `null` for issue created, or `"none"` for deadline-only |
 | `warning.type` | string | Threshold type: `"hours"` or `"percent"` |
 | `warning.value` | number | Threshold value: hours remaining or percentage of total time |
-| `pauseStatusIds` | string[] | Status IDs where the clock should pause |
+| `pauseStatusIds` | string[] | Status IDs that show the Paused badge (the deadline is not extended) |
 
 > [!WARNING]
 > Invalid or missing configuration means the app is "not configured" for that project. The panel remains hidden until valid config with `enabled: true` exists.
@@ -109,7 +109,7 @@ The app requests only the permissions it needs to function:
 
 | Scope | Why |
 |---|---|
-| `read:jira-work` | Read issues, changelogs, fields, statuses, and the project property configuration |
+| `read:jira-work` | Read issues, fields, statuses, and the project property configuration |
 | `manage:jira-project` | Write the `time-left-config` project property (saving settings) |
 
 > [!IMPORTANT]
@@ -240,7 +240,7 @@ forge install -e production --site your-site.atlassian.net --product jira
 - [ ] **Create field:** Create a Date Time custom field "Deadline" and add it to a test project's screens
 - [ ] **Configure:** In *Project settings → Time left*, enable the app, choose "Deadline", set threshold to 4 hours, and select a pause status like "Waiting for customer"
 - [ ] **Check states:** Verify deadline in 2 days (On track), in 2 hours (Due soon), in the past (Breached), and empty (No deadline)
-- [ ] **Test pauses:** Move the issue to the pause status, wait a minute (countdown must not change). Move it back: it should continue from the same value
+- [ ] **Test pauses:** Move the issue to the pause status: the badge says Paused and the countdown keeps running. Move it back: the badge returns to normal
 - [ ] **Resolution:** Resolve the issue before and after the deadline to verify *Met* and *Missed* with correct "to spare"/"late" values
 - [ ] **System field:** Switch the deadline field to the system *Due date* to check end-of-day behavior in your timezone
 - [ ] **Unconfigured project:** Ensure the panel does not appear in a project without config
@@ -272,7 +272,7 @@ The clock can be in one of seven states, determined by the `computeClock` functi
 | Limitation | Description |
 |---|---|
 | **Visibility** | Shows only in the issue view sidebar. Lists and boards show the native Deadline field. |
-| **JQL & Pauses** | The pause-extended effective deadline isn't stored anywhere, so JQL on the Deadline field doesn't account for pauses. |
+| **JQL & Pauses** | Pauses do not change the deadline, so JQL on the Deadline field matches what the panel shows. |
 | **Working hours** | No working-hours calendars in v1; the clock runs 24/7. |
 | **Alerts** | Does not send notifications. Use Jira Automation (e.g., scheduled rule with `"Deadline" <= 2h AND statusCategory != Done`). |
 | **Collapsed state** | The collapsed issue panel can't show a dynamic state lozenge (would require a function module). |

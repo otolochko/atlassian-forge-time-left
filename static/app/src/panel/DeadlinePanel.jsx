@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { events } from '@forge/bridge';
 import Lozenge from '@atlaskit/lozenge';
 import SectionMessage from '@atlaskit/section-message';
-import { buildStatusTimeline, computeClock, parseJiraDate, resolveDateField } from '../lib/clock';
+import { computeClock, parseJiraDate, resolveDateField } from '../lib/clock';
 import { NO_START, readConfig } from '../lib/config';
 import { formatCountdown, formatDateTime, formatSpan } from '../lib/format';
 import { jiraGet } from '../lib/jira';
@@ -24,16 +24,6 @@ const BADGES = {
 
 class PanelError extends Error {}
 
-async function loadChangelog(key) {
-  const histories = [];
-  for (let startAt = 0; ; ) {
-    const page = await jiraGet(`/rest/api/3/issue/${key}/changelog?startAt=${startAt}&maxResults=100`);
-    histories.push(...page.values);
-    if (page.isLast || page.values.length === 0) return histories;
-    startAt += page.values.length;
-  }
-}
-
 async function load(context) {
   const { issue, project } = context.extension;
   const config = await readConfig(project.id);
@@ -52,8 +42,6 @@ async function load(context) {
 
   const created = parseJiraDate(f.created);
   const start = config.startFieldId === NO_START ? null : (config.startFieldId && resolve(config.startFieldId)) ?? created;
-  const histories = config.pauseStatusIds.length ? await loadChangelog(issue.key) : [];
-  const timeline = buildStatusTimeline(created, f.status.id, histories);
   const done = f.status.statusCategory?.key === 'done';
 
   return {
@@ -61,13 +49,11 @@ async function load(context) {
     deadline: resolve(config.deadlineFieldId),
     deadlineFieldName: data.names?.[config.deadlineFieldId] ?? config.deadlineFieldId,
     start,
-    timeline,
+    statusId: f.status.id,
     statusName: f.status.name,
     completedAt: done ? parseJiraDate(f.resolutiondate) ?? parseJiraDate(f.statuscategorychangedate) : null,
   };
 }
-
-const MINUTE = 60e3;
 
 // One short line under the timer; the lozenge already names the state
 function subline(d, clock, fmt) {
@@ -81,17 +67,15 @@ function subline(d, clock, fmt) {
     case 'missed':
       return `Done ${fmt(d.completedAt)} · ${formatSpan(clock.remaining)} late`;
     case 'breached':
-      return `Was due ${fmt(clock.effectiveDeadline)}`;
+      return `Was due ${fmt(d.deadline)}`;
     default:
-      return `Due ${fmt(clock.effectiveDeadline)}${clock.paused >= MINUTE ? ` · ${formatSpan(clock.paused)} paused` : ''}`;
+      return `Due ${fmt(d.deadline)}`;
   }
 }
 
 // Full details live in the tooltip
-function tooltip(d, clock, fmt) {
-  const parts = [`From "${d.deadlineFieldName}"`, `deadline ${fmt(d.deadline)}`];
-  if (clock.paused > 0) parts.push(`effective ${fmt(clock.effectiveDeadline)}`, `paused ${formatSpan(clock.paused)}`);
-  return parts.join(' · ');
+function tooltip(d, fmt) {
+  return `From "${d.deadlineFieldName}" · deadline ${fmt(d.deadline)}`;
 }
 
 export default function DeadlinePanel({ context }) {
@@ -130,7 +114,7 @@ export default function DeadlinePanel({ context }) {
   const now = useTicker((t) => {
     if (data?.deadline == null || data.completedAt) return 30000;
     const probe = computeClock({ ...data, now: t, pauseStatusIds: data.config.pauseStatusIds, warning: data.config.warning });
-    return !probe.isPaused && Math.abs(probe.remaining) < DAY ? 1000 : 30000;
+    return Math.abs(probe.remaining) < DAY ? 1000 : 30000;
   });
 
   let body;
@@ -152,7 +136,7 @@ export default function DeadlinePanel({ context }) {
       start: data.start,
       deadline: data.deadline,
       now,
-      timeline: data.timeline,
+      statusId: data.statusId,
       pauseStatusIds: data.config.pauseStatusIds,
       completedAt: data.completedAt,
       warning: data.config.warning,
@@ -163,7 +147,7 @@ export default function DeadlinePanel({ context }) {
     body = (
       <div
         className={`countdown tone-${badge.tone}`}
-        title={clock.state === 'no-deadline' ? undefined : tooltip(data, clock, fmt)}
+        title={clock.state === 'no-deadline' ? undefined : tooltip(data, fmt)}
       >
         <div className="head">
           <svg className="icon" width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">

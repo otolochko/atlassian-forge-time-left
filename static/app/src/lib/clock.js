@@ -19,52 +19,14 @@ export function resolveDateField(value, type, timeZone) {
 }
 
 /**
- * Builds a status timeline from changelog histories.
- * @returns {Array<{ statusId: string, from: number, to: number | null }>}
- */
-export function buildStatusTimeline(createdAt, currentStatusId, histories) {
-  const changes = histories
-    .flatMap((h) =>
-      h.items
-        .filter((i) => i.fieldId === 'status' || i.field === 'status')
-        .map((i) => ({ at: parseJiraDate(h.created), fromId: i.from, toId: i.to }))
-    )
-    .sort((a, b) => a.at - b.at);
-
-  const timeline = [];
-  let cursor = createdAt;
-  let status = changes.length ? changes[0].fromId : currentStatusId;
-  for (const c of changes) {
-    timeline.push({ statusId: status, from: cursor, to: c.at });
-    cursor = c.at;
-    status = c.toId;
-  }
-  timeline.push({ statusId: status, from: cursor, to: null });
-  return timeline;
-}
-
-/** Total time spent in pause statuses within [windowStart, windowEnd] */
-export function pausedWithin(timeline, pauseStatusIds, windowStart, windowEnd) {
-  const pause = new Set(pauseStatusIds);
-  let total = 0;
-  for (const seg of timeline) {
-    if (!pause.has(seg.statusId)) continue;
-    const a = Math.max(seg.from, windowStart);
-    const b = Math.min(seg.to ?? windowEnd, windowEnd);
-    if (b > a) total += b - a;
-  }
-  return total;
-}
-
-/**
- * SLA-like clock. Pauses extend the effective deadline,
- * so the remaining time is frozen while the issue sits in a pause status.
+ * Countdown to a fixed deadline. The deadline comes from another system, so pause statuses
+ * never move it: they only mark the issue as paused while it sits in one.
  */
 export function computeClock({
   start,
   deadline,
   now,
-  timeline,
+  statusId,
   pauseStatusIds = [],
   completedAt = null,
   warning = null,
@@ -72,13 +34,11 @@ export function computeClock({
   if (deadline == null) return { state: 'no-deadline' };
 
   const end = completedAt ?? now;
-  // No start: every pause since creation counts, and there is no total to measure progress against
-  const hasStart = start != null;
-  const paused = pausedWithin(timeline, pauseStatusIds, hasStart ? start : -Infinity, end);
-  const goal = hasStart ? Math.max(0, deadline - start) : null;
-  const remaining = deadline + paused - end;
-  const isPaused = !completedAt && pauseStatusIds.includes(timeline[timeline.length - 1].statusId);
-  const elapsedFraction = !hasStart ? null : goal > 0 ? Math.min(1, Math.max(0, 1 - remaining / goal)) : 1;
+  // No start: there is no total to measure progress against
+  const goal = start != null ? Math.max(0, deadline - start) : null;
+  const remaining = deadline - end;
+  const isPaused = !completedAt && pauseStatusIds.includes(statusId);
+  const elapsedFraction = start == null ? null : goal > 0 ? Math.min(1, Math.max(0, 1 - remaining / goal)) : 1;
 
   let state;
   if (completedAt) state = remaining >= 0 ? 'met' : 'missed';
@@ -91,10 +51,8 @@ export function computeClock({
     state,
     remaining,
     goal,
-    paused,
     isPaused,
     elapsedFraction,
-    effectiveDeadline: deadline + paused,
   };
 }
 
